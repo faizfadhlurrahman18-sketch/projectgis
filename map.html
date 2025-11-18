@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>WebGIS - Peta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    :root { --enter-animation: fadeIn; --exit-animation: fadeOut; --enter-transform: translateY(0); }
+    html.page-enter { opacity:0; transform:var(--enter-transform); }
+    html.page-enter.page-enter-active { animation: var(--enter-animation) .45s ease forwards; }
+    html.page-exit { animation: var(--exit-animation) .35s ease forwards; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+    @keyframes slideIn { from{opacity:0; transform:translateY(40px);} to{opacity:1; transform:translateY(0);} }
+    @keyframes slideOut { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-30px);} }
+    @keyframes scaleIn { from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
+    @keyframes scaleOut { from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(.9);} }
+  </style>
+  <style>
+    html,body {
+      margin:0;
+      height:100%;
+      background:#fff !important;
+      box-shadow:none !important;
+    }
+    #map {
+      width:100vw;
+      height:100vh;
+      background:#fff !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      margin:0 !important;
+      display:block !important;
+    }
+    .nav-bar { position:absolute; top:10px; left:10px; z-index:1000; background:#fff; padding:6px 10px; border-radius:8px; box-shadow:0 4px 14px -6px rgba(0,0,0,.15); display:flex; gap:8px; font-family:Arial,sans-serif; }
+    .nav-bar button { border:0; background:#1976d2; color:#fff; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }
+    .nav-bar button:hover { filter:brightness(1.08); }
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <button id="btnBack">Kembali</button>
+    <button id="btnLogout">Logout</button>
+  </div>
+  <div id="map"></div>
+  <script src="config.js"></script>
+  <script src="turf.js"></script>
+  <script src="script.js"></script>
+  <script>
+    (function(){
+      // Apply transition type (scale dari login)
+      const type = localStorage.getItem('nextTransition') || 'scale';
+      applyTransitionType(type);
+      document.documentElement.classList.add('page-enter');
+      requestAnimationFrame(()=>document.documentElement.classList.add('page-enter-active'));
+      function applyTransitionType(t){
+        switch(t){
+          case 'slide':
+            document.documentElement.style.setProperty('--enter-animation','slideIn');
+            document.documentElement.style.setProperty('--exit-animation','slideOut');
+            document.documentElement.style.setProperty('--enter-transform','translateY(40px)');
+            break;
+          case 'scale':
+            document.documentElement.style.setProperty('--enter-animation','scaleIn');
+            document.documentElement.style.setProperty('--exit-animation','scaleOut');
+            document.documentElement.style.setProperty('--enter-transform','scale(.92)');
+            break;
+          default:
+            document.documentElement.style.setProperty('--enter-animation','fadeIn');
+            document.documentElement.style.setProperty('--exit-animation','fadeOut');
+            document.documentElement.style.setProperty('--enter-transform','translateY(0)');
+        }
+      }
+      function navigateWithTransition(url,nextType){
+        document.documentElement.classList.add('page-exit');
+        if(nextType) localStorage.setItem('nextTransition', nextType);
+        setTimeout(()=>location.href=url, 340);
+      }
+      const params = new URLSearchParams(location.search);
+      const qpMode = params.get('mode');
+      const storedMode = localStorage.getItem('mode');
+      const mode = qpMode || storedMode;
+      const auth = localStorage.getItem('auth');
+      if (!mode || auth !== '1') {
+        navigateWithTransition('index.html','fade');
+        return;
+      }
+      if (qpMode && qpMode !== storedMode) {
+        localStorage.setItem('mode', qpMode);
+      }
+      if (typeof initMap === 'function' && !window._leafletMapInitialized) {
+        initMap(mode);
+        window._leafletMapInitialized = true;
+      }
+      // Tombol navigasi
+      document.getElementById('btnBack').addEventListener('click', ()=>navigateWithTransition('login.html','slide'));
+      document.getElementById('btnLogout').addEventListener('click', ()=>{
+        localStorage.removeItem('auth');
+        navigateWithTransition('index.html','fade');
+      });
+
+      // Opacity slider logic
+      var slider = document.getElementById('opacitySlider');
+      var valueLabel = document.getElementById('opacityValue');
+      if (slider && valueLabel) {
+        slider.addEventListener('input', function(){
+          var val = parseFloat(slider.value);
+          valueLabel.textContent = val.toFixed(2);
+          window.BIDANG_FILL_OPACITY = val;
+          // Update style layer jika sudah ada
+          if(window.geoJsonLayer && typeof window.geoJsonLayer.setStyle === 'function'){
+            window.geoJsonLayer.setStyle({fillOpacity: val});
+          }
+        });
+        // Set initial value from window.BIDANG_FILL_OPACITY if exists
+        if(typeof window.BIDANG_FILL_OPACITY === 'number'){
+          slider.value = window.BIDANG_FILL_OPACITY;
+          valueLabel.textContent = window.BIDANG_FILL_OPACITY.toFixed(2);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

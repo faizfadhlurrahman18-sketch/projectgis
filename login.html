@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - WebGIS</title>
+  <style>
+    .sosmed-icon {
+      width:24px;
+      height:24px;
+      object-fit:contain;
+      vertical-align:middle;
+      background:#fff;
+      border-radius:50%;
+      padding:2px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.07);
+    }
+    :root { --enter-animation: fadeIn; --exit-animation: fadeOut; --enter-transform: translateY(0); }
+    html.page-enter { opacity:0; transform:var(--enter-transform); }
+    html.page-enter.page-enter-active { animation: var(--enter-animation) .45s ease forwards; }
+    html.page-exit { animation: var(--exit-animation) .35s ease forwards; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+    @keyframes slideIn { from{opacity:0; transform:translateY(40px);} to{opacity:1; transform:translateY(0);} }
+    @keyframes slideOut { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-30px);} }
+    @keyframes scaleIn { from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
+    @keyframes scaleOut { from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(.9);} }
+  </style>
+  <style>
+    body {
+      margin:0;
+      font-family:Arial,sans-serif;
+      min-height:100vh;
+      background:
+        linear-gradient(120deg, #0f1f33 60%, #1976d2 100%),
+        #0f1f33;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .bg-pattern {
+      pointer-events:none;
+      position:fixed;
+      inset:0;
+      z-index:0;
+      opacity:0.10;
+      background-image: linear-gradient(0deg, transparent 24px, #fff2 25px), linear-gradient(90deg, transparent 24px, #fff2 25px);
+      background-size: 25px 25px;
+      background-position: 0 0, 0 0;
+    }
+    .bg-map {
+      pointer-events:none;
+      position:fixed;
+      left:50%;
+      top:50%;
+      width:520px;
+      height:340px;
+      transform:translate(-50%,-50%) scale(1.1);
+      opacity:0.07;
+      z-index:1;
+      filter: blur(1.5px);
+      user-select:none;
+    }
+    .box {
+      background:#fff;
+      padding:30px 34px;
+      width:340px;
+      border-radius:16px;
+      box-shadow:0 8px 26px -10px rgba(0,0,0,.45);
+      text-align:center;
+      opacity:0;
+      transform:translateY(30px) scale(0.98);
+      animation: cardDropFade .7s cubic-bezier(.23,1.02,.32,1) .15s forwards;
+    }
+    @keyframes cardDropFade {
+      from { opacity:0; box-shadow:0 0 0 0 rgba(0,0,0,0); transform:translateY(30px) scale(0.98); }
+      to   { opacity:1; box-shadow:0 8px 26px -10px rgba(0,0,0,.45); transform:translateY(0) scale(1); }
+    }
+    h2 { margin:0 0 6px; font-size:22px; }
+    p { margin:0 0 20px; font-size:13px; color:#555; }
+    .footer { margin-top:8px; font-size:11px; color:#777; }
+    img.logo {
+      width:90px;
+      height:90px;
+      object-fit:contain;
+      background:#fff;
+      padding:8px;
+      border-radius:50%;
+      box-shadow:0 4px 12px -4px rgba(0,0,0,.35);
+      margin:0 auto 14px; display:block;
+      opacity:0;
+      transform:scale(0.92);
+      animation: logoFadeIn .9s cubic-bezier(.23,1.02,.32,1) .4s forwards;
+    }
+    @keyframes logoFadeIn {
+      from { opacity:0; transform:scale(0.92); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    form.login-form {
+      margin-top:18px;
+      text-align:left;
+    }
+    .login-form label {
+      display:block;
+      font-size:13px;
+      color:#234;
+      margin-bottom:4px;
+      font-weight:500;
+    }
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+      width:100%;
+      padding:10px 12px;
+      margin-bottom:14px;
+      border-radius:8px;
+      border:1px solid #cfd8dc;
+      font-size:14px;
+      background:#f7fafd;
+      transition:border .2s;
+      box-sizing:border-box;
+    }
+    .login-form input[type="text"]:focus,
+    .login-form input[type="password"]:focus {
+      border-color:#1976d2;
+      outline:none;
+      background:#fff;
+    }
+    .login-form button[type="submit"] {
+      width:100%;
+      padding:12px 16px;
+      border:0;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:14px;
+      background:#1976d2;
+      color:#fff;
+      margin-top:2px;
+      transition: background .28s cubic-bezier(.4,0,.2,1), box-shadow .28s, transform .25s;
+    }
+    .login-form button[type="submit"]:hover {
+      background:#1251a3;
+      filter:brightness(1.08);
+      transform:translateY(-2px) scale(1.03);
+      box-shadow:0 6px 18px -6px #1976d255;
+    }
+    .login-error {
+      color:#d32f2f;
+      font-size:12px;
+      margin-bottom:10px;
+      text-align:center;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <svg class="bg-map" viewBox="0 0 520 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M120 80 Q180 40 260 60 T400 100 Q440 140 420 200 Q410 260 340 280 Q260 320 180 260 Q120 220 120 160 Q100 120 120 80 Z" fill="#fff" />
+  </svg>
+  <div class="box">
+    <img src="logo.png" alt="Logo" class="logo">
+    <h2 id="login-title">Login WebGIS</h2>
+    <div style="margin-bottom:16px;">
+      <span style="display:inline-block; background:linear-gradient(90deg,#1976d2 30%,#43a047 100%); color:#fff; font-size:15px; font-weight:600; padding:10px 18px; border-radius:22px; box-shadow:0 2px 8px -2px #1976d255; letter-spacing:.01em; margin-bottom:4px;">
+        Sistem Informasi Geografis
+      </span>
+      <div id="login-desc" style="font-size:13.5px; color:#234; margin-top:8px; line-height:1.6; font-weight:500;">
+        <!-- Akan diisi via JS -->
+      </div>
+    </div>
+    <form class="login-form" autocomplete="off">
+      <div class="login-error" id="login-error">Username atau password salah.</div>
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required autofocus>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div class="footer">© 2025 LinkGIS</div>
+    <div style="font-size:11px; color:#888; margin-top:2px;">Versi 1.0.0 – Update 2025</div>
+    <div class="footer" style="margin-top:18px;">
+      <a href="https://instagram.com/faizzfr" target="_blank" title="Instagram" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
+        <img src="img/Instagram.png" alt="Instagram" class="sosmed-icon">
+      </a>
+      <a href="https://wa.me/+6281212203469" target="_blank" title="WhatsApp" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
+        <img src="img/Whatsapp.png" alt="WhatsApp" class="sosmed-icon">
+      </a>
+      <a href="https://tiktok.com/@akwkwkd" target="_blank" title="TikTok" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
+        <img src="img/Tiktok.png" alt="TikTok" class="sosmed-icon">
+      </a>
+    </div>
+  </div>
+  <script>
+    // Setup entry animation (halaman login: slide jika dari index, jika tidak fade)
+    (function initTransition(){
+      let next = localStorage.getItem('nextTransition');
+      if(next){
+        setTransition(next);
+        localStorage.removeItem('nextTransition');
+      }
+      document.documentElement.classList.add('page-enter');
+      requestAnimationFrame(()=>document.documentElement.classList.add('page-enter-active'));
+    })();
+    function setTransition(type){
+      switch(type){
+        case 'slide':
+          document.documentElement.style.setProperty('--enter-animation','slideIn');
+          document.documentElement.style.setProperty('--exit-animation','slideOut');
+          document.documentElement.style.setProperty('--enter-transform','translateY(40px)');
+          break;
+        case 'scale':
+          document.documentElement.style.setProperty('--enter-animation','scaleIn');
+          document.documentElement.style.setProperty('--exit-animation','scaleOut');
+          document.documentElement.style.setProperty('--enter-transform','scale(.92)');
+          break;
+        default:
+          document.documentElement.style.setProperty('--enter-animation','fadeIn');
+          document.documentElement.style.setProperty('--exit-animation','fadeOut');
+          document.documentElement.style.setProperty('--enter-transform','translateY(0)');
+      }
+    }
+
+    // Tampilkan kategori sesuai mode
+    (function setLoginCategory(){
+      const mode = localStorage.getItem('mode') || 'kasdesa';
+      let kategori = 'Tanah Kas Desa';
+      if(mode === 'dadan') kategori = 'Tanah Dadan';
+      document.getElementById('login-title').textContent = 'Login ' + kategori;
+      document.getElementById('login-desc').innerHTML =
+        'Silakan login untuk mengakses data <span style="color:#1976d2;font-weight:600;">' +
+        kategori +
+        '</span>.';
+    })();
+
+    // Demo login logic (ganti sesuai backend Anda)
+    document.querySelector('.login-form').onsubmit = function(e){
+      e.preventDefault();
+      var u = document.getElementById('username').value.trim();
+      var p = document.getElementById('password').value.trim();
+      var err = document.getElementById('login-error');
+      var mode = localStorage.getItem('mode') || 'kasdesa';
+      var valid = false;
+      if(mode === 'kasdesa' && u === 'desa' && p === 'desa') valid = true;
+      if(mode === 'dadan' && u === 'dadan' && p === 'dadan') valid = true;
+      if(valid){
+        localStorage.setItem('auth','1');
+        document.documentElement.classList.add('page-exit');
+        setTimeout(()=>{ location.href = 'map.html'; }, 340);
+      } else {
+        err.style.display = 'block';
+      }
+    };
+    document.getElementById('username').oninput = document.getElementById('password').oninput = function(){
+      document.getElementById('login-error').style.display = 'none';
+    };
+  </script>
+</body>
+</html>
