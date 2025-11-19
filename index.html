@@ -2,125 +2,87 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <!-- Favicon bundel: logo.png di-clip menjadi bulat -->
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0%200%2064%2064'><defs><clipPath id='c'><circle cx='32' cy='32' r='32'/></clipPath></defs><rect width='64' height='64' fill='%231976d2'/><image href='logo.png' width='64' height='64' clip-path='url(%23c)' preserveAspectRatio='xMidYMid%20slice'/></svg>" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta name="theme-color" content="#1976d2">
   <title>Pilih Kategori - WebGIS</title>
   <style>
-        .sosmed-icon {
-          width:24px;
-          height:24px;
-          object-fit:contain;
-          vertical-align:middle;
-          background:#fff;
-          border-radius:50%;
-          padding:2px;
-          box-shadow:0 1px 3px rgba(0,0,0,0.07);
-        }
-    /* Transisi halaman (fade, slide, scale) */
-    :root { --enter-animation: fadeIn; --exit-animation: fadeOut; --enter-transform: translateY(0); }
-    html.page-enter { opacity:0; transform:var(--enter-transform); }
-    html.page-enter.page-enter-active { animation: var(--enter-animation) .45s ease forwards; }
-    html.page-exit { animation: var(--exit-animation) .35s ease forwards; }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
-    @keyframes slideIn { from{opacity:0; transform:translateY(40px);} to{opacity:1; transform:translateY(0);} }
-    @keyframes slideOut { from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-30px);} }
-    @keyframes scaleIn { from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
-    @keyframes scaleOut { from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(.9);} }
-  </style>
-  <style>
+    html, body { height:100%; }
     body {
       margin:0;
       font-family:Arial,sans-serif;
       min-height:100vh;
-      background:
-        linear-gradient(120deg, #0f1f33 60%, #1976d2 100%),
-        #0f1f33;
+      background:linear-gradient(120deg, #0f1f33 60%, #1976d2 100%),#0f1f33;
       position:relative;
-      overflow:hidden;
+    }
+    .main-content {
+      min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
     }
-    /* Pola kotak GIS */
     .bg-pattern {
       pointer-events:none;
-      position:fixed;
-      inset:0;
-      z-index:0;
-      opacity:0.10;
-      background-image: linear-gradient(0deg, transparent 24px, #fff2 25px), linear-gradient(90deg, transparent 24px, #fff2 25px);
-      background-size: 25px 25px;
-      background-position: 0 0, 0 0;
+      position:fixed; inset:0; z-index:0; opacity:0.10;
+      background-image:linear-gradient(0deg,transparent 24px,#fff2 25px),linear-gradient(90deg,transparent 24px,#fff2 25px);
+      background-size:25px 25px;
     }
-    /* Siluet peta desa buram (SVG) */
     .bg-map {
       pointer-events:none;
-      position:fixed;
-      left:50%;
-      top:50%;
-      width:520px;
-      height:340px;
+      position:fixed; left:50%; top:50%;
+      width:520px; height:340px;
       transform:translate(-50%,-50%) scale(1.1);
-      opacity:0.07;
-      z-index:1;
-      filter: blur(1.5px);
-      user-select:none;
+      opacity:0.07; z-index:1; filter:blur(1.5px); user-select:none;
     }
     .box {
-      background:#fff;
-      padding:30px 34px;
-      width:340px;
-      border-radius:16px;
-      box-shadow:0 8px 26px -10px rgba(0,0,0,.45);
-      text-align:center;
-      opacity:0;
-      transform:translateY(30px) scale(0.98);
-      animation: cardDropFade .7s cubic-bezier(.23,1.02,.32,1) .15s forwards;
+      background:#fff; padding:30px 34px; width:340px; border-radius:16px;
+      box-shadow:0 8px 26px -10px rgba(0,0,0,.45); text-align:center;
+      opacity:0; transform:translateY(30px) scale(0.98);
+      animation:cardDropFade .7s cubic-bezier(.23,1.02,.32,1) .15s forwards;
     }
     @keyframes cardDropFade {
-      from { opacity:0; box-shadow:0 0 0 0 rgba(0,0,0,0); transform:translateY(30px) scale(0.98); }
-      to   { opacity:1; box-shadow:0 8px 26px -10px rgba(0,0,0,.45); transform:translateY(0) scale(1); }
+      from { opacity:0; box-shadow:0 0 0 0 rgba(0,0,0,0); transform:translateY(30px) scale(0.98);}
+      to   { opacity:1; box-shadow:0 8px 26px -10px rgba(0,0,0,.45); transform:translateY(0) scale(1);}
     }
     h2 { margin:0 0 6px; font-size:22px; }
     p { margin:0 0 20px; font-size:13px; color:#555; }
     button {
-      width:100%;
-      padding:12px 16px;
-      border:0;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-      font-size:14px;
-      margin-bottom:14px;
-      transition: background .28s cubic-bezier(.4,0,.2,1), color .28s cubic-bezier(.4,0,.2,1), box-shadow .28s, transform .25s;
+      width:100%; padding:12px 16px; border:0; border-radius:10px; cursor:pointer;
+      font-weight:600; font-size:14px; margin-bottom:14px;
+      transition:background .28s cubic-bezier(.4,0,.2,1),color .28s cubic-bezier(.4,0,.2,1),box-shadow .28s,transform .25s;
     }
     button.mode-kasdesa { background:#1976d2; color:#fff; }
     button.mode-dadan { background:#43a047; color:#fff; }
     button:hover {
-      filter:brightness(1.08);
-      transform:translateY(-2px) scale(1.03);
+      filter:brightness(1.08); transform:translateY(-2px) scale(1.03);
       box-shadow:0 6px 18px -6px #1976d255;
     }
     button.mode-kasdesa:hover { background:#1251a3; }
     button.mode-dadan:hover { background:#2e7031; }
     .footer { margin-top:8px; font-size:11px; color:#777; }
     img.logo {
-      width:90px;
-      height:90px;
-      object-fit:contain;
-      background:#fff;
-      padding:8px;
-      border-radius:50%;
-      box-shadow:0 4px 12px -4px rgba(0,0,0,.35);
-      margin:0 auto 14px; display:block;
-      opacity:0;
-      transform:scale(0.92);
-      animation: logoFadeIn .9s cubic-bezier(.23,1.02,.32,1) .4s forwards;
+      width:90px; height:90px; object-fit:contain; background:#fff; padding:8px; border-radius:50%;
+      box-shadow:0 4px 12px -4px rgba(0,0,0,.35); margin:0 auto 14px; display:block;
+      opacity:0; transform:scale(0.92);
+      animation:logoFadeIn .9s cubic-bezier(.23,1.02,.32,1) .4s forwards;
     }
-    @keyframes logoFadeIn {
-      from { opacity:0; transform:scale(0.92); }
-      to   { opacity:1; transform:scale(1); }
+    @keyframes logoFadeIn { from{opacity:0;transform:scale(0.92);} to{opacity:1;transform:scale(1);} }
+    .sosmed-icon {
+      width:24px; height:24px; object-fit:contain; vertical-align:middle; background:#fff;
+      border-radius:50%; padding:2px; box-shadow:0 1px 3px rgba(0,0,0,0.07);
     }
+    :root { --enter-animation: fadeIn; --exit-animation: fadeOut; --enter-transform: translateY(0);}
+    html.page-enter { opacity:0; transform:var(--enter-transform);}
+    html.page-enter.page-enter-active { animation:var(--enter-animation) .45s ease forwards;}
+    html.page-exit { animation:var(--exit-animation) .35s ease forwards;}
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+    @keyframes slideIn { from{opacity:0;transform:translateY(40px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes slideOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(-30px);} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(.92);} to{opacity:1;transform:scale(1);} }
+    @keyframes scaleOut { from{opacity:1;transform:scale(1);} to{opacity:0;transform:scale(.9);} }
   </style>
 </head>
 <body>
@@ -128,9 +90,10 @@
   <svg class="bg-map" viewBox="0 0 520 340" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M120 80 Q180 40 260 60 T400 100 Q440 140 420 200 Q410 260 340 280 Q260 320 180 260 Q120 220 120 160 Q100 120 120 80 Z" fill="#fff" />
   </svg>
-  <div class="box">
-    <img src="logo.png" alt="Logo" class="logo">
-    <h2>WebGIS Pertanahan</h2>
+  <div class="main-content">
+    <div class="box">
+      <img src="logo.png" alt="Logo" class="logo">
+      <h2>WebGIS Pertanahan</h2>
       <div style="margin-bottom:16px;">
         <span style="display:inline-block; background:linear-gradient(90deg,#1976d2 30%,#43a047 100%); color:#fff; font-size:15px; font-weight:600; padding:10px 18px; border-radius:22px; box-shadow:0 2px 8px -2px #1976d255; letter-spacing:.01em; margin-bottom:4px;">
           Sistem Informasi Geografis
@@ -140,26 +103,27 @@
           <span style="color:#1976d2;font-weight:600;">Tanah Kas Desa</span> serta <span style="color:#43a047;font-weight:600;">Tanah Dadan</span> secara digital.
         </div>
       </div>
-    <p>Pilih kategori data:</p>
-    <button class="mode-kasdesa" data-mode="kasdesa">Tanah Kas Desa</button>
-    <button class="mode-dadan" data-mode="dadan">Tanah Dadan</button>
-    <div class="footer">© 2025 LinkGIS</div>
-    <div style="font-size:11px; color:#888; margin-top:2px;">Versi 1.0.0 – Update 2025</div>
-    <div class="footer" style="margin-top:18px;">
+      <p>Pilih kategori data:</p>
+      <button class="mode-kasdesa" data-mode="kasdesa">Tanah Kas Desa</button>
+      <button class="mode-dadan" data-mode="dadan">Tanah Dadan</button>
+      <div class="footer">© 2025 LinkGIS</div>
+      <div style="font-size:11px; color:#888; margin-top:2px;">Versi 1.0.0 – Update 2025</div>
+      <div class="footer" style="margin-top:18px;">
         <a href="https://instagram.com/faizzfr" target="_blank" title="Instagram" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
           <img src="Instagram.png" alt="Instagram" class="sosmed-icon">
         </a>
         <a href="https://wa.me/+6281212203469" target="_blank" title="WhatsApp" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
-          <img src="Whatsapp.png" alt="WhatsApp" class="sosmed-icon">
+          <img src="WhatsApp.png" alt="WhatsApp" class="sosmed-icon">
         </a>
         <a href="https://tiktok.com/@akwkwkd" target="_blank" title="TikTok" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
           <img src="Tiktok.png" alt="TikTok" class="sosmed-icon">
         </a>
       </div>
+    </div>
   </div>
   <script>
     // Setup entry animation (halaman pertama: fade)
-    (function initTransition(){
+    (function(){
       document.documentElement.classList.add('page-enter');
       requestAnimationFrame(()=>document.documentElement.classList.add('page-enter-active'));
     })();
@@ -187,14 +151,47 @@
       if(nextType) localStorage.setItem('nextTransition', nextType);
       setTimeout(()=>{ location.href = url; }, 340);
     }
+
+    // Perubahan: simpan mode, lalu cek auth.
     document.addEventListener('click', e => {
       const btn = e.target.closest('button[data-mode]');
       if (!btn) return;
       localStorage.setItem('mode', btn.dataset.mode);
-      localStorage.removeItem('auth');
-      // Halaman berikut (login) gunakan slide
-      navigateWithTransition('login.html','slide');
+
+      // jangan hapus auth di sini; arahkan tergantung status login
+      const isAuth = localStorage.getItem('auth') === '1';
+      if (isAuth) {
+        // tandai bahwa pengguna akan masuk ke peta (disimpan di session agar hanya berlaku per-tab)
+        try { sessionStorage.setItem('enteredMap','1'); } catch(_) {}
+        navigateWithTransition('map.html','slide');
+      } else {
+        navigateWithTransition('login.html','slide');
+      }
     });
+
+    // Jika pengguna kembali ke halaman ini setelah pernah masuk ke map di tab yang sama,
+    // anggap itu "keluar" dari map -> logout otomatis.
+    // Gunakan sessionStorage.enteredMap yang diset sebelum navigasi ke map.
+    window.addEventListener('pageshow', function(e){
+      try {
+        if (sessionStorage.getItem('enteredMap') === '1') {
+          // hapus flag auth supaya akses map berikutnya memerlukan login lagi
+          localStorage.removeItem('auth');
+          // hapus flag agar tidak terus logout di navigasi selanjutnya
+          sessionStorage.removeItem('enteredMap');
+          // hapus juga nextTransition agar tidak memicu animasi yang tidak diinginkan
+          localStorage.removeItem('nextTransition');
+        }
+      } catch(err) { /* silent */ }
+    });
+
+    // Selalu logout saat berada di halaman ini (index) — memastikan auth hanya aktif di map.html.
+    // Tangani cases pageshow (Back/BFCache) dan load.
+    (function ensureLoggedOutOnNonMap(){
+      try { localStorage.removeItem('auth'); } catch(_) {}
+      window.addEventListener('pageshow', ()=>{ try{ localStorage.removeItem('auth'); }catch(_){} });
+      window.addEventListener('load', ()=>{ try{ localStorage.removeItem('auth'); }catch(_){} });
+    })();
   </script>
 </body>
 </html>

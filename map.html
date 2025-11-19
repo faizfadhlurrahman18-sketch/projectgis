@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=5">
   <title>WebGIS - Peta</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -38,6 +38,9 @@
     .nav-bar button { border:0; background:#1976d2; color:#fff; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }
     .nav-bar button:hover { filter:brightness(1.08); }
   </style>
+  <!-- Tambahkan meta pencegah cache supaya browser tidak menyajikan versi lama tanpa pemeriksaan -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
 </head>
 <body>
   <div class="nav-bar">
@@ -121,6 +124,39 @@
         }
       }
     })();
+
+    // Pastikan pengalihan jika tidak login saat load biasa
+    function checkAuthAndRedirect() {
+      if (localStorage.getItem('auth') !== '1') {
+        // simpan transisi opsional lalu redirect ke login
+        localStorage.setItem('nextTransition','slide');
+        // replace agar back tidak kembali ke halaman map yang sudah tidak valid
+        location.replace('login.html');
+        return false;
+      }
+      return true;
+    }
+
+    // cek segera pada load
+    checkAuthAndRedirect();
+
+    // penting: jika page di-restore dari bfcache (back), pageshow akan dipanggil dengan event.persisted === true
+    window.addEventListener('pageshow', function(e) {
+      // selalu re-check auth; jika tidak valid redirect segera
+      if (!checkAuthAndRedirect()) return;
+      // jika ingin: dapat me-refresh data peta di sini bila perlu
+    });
+
+    // Jika ada tombol logout: gunakan location.replace atau history.replaceState setelah menghapus auth
+    // contoh (jika file sudah punya tombol logout dengan id="logoutBtn"):
+    const logoutBtn = document.getElementById && document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(){
+        localStorage.removeItem('auth');
+        // gunakan replace agar entry history map digantikan sehingga Back tidak kembali ke peta
+        location.replace('index.html');
+      });
+    }
   </script>
 </body>
 </html>

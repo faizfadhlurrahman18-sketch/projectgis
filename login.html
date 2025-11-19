@@ -2,7 +2,11 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=5">
+  <!-- Favicon bundel: logo.png di-clip menjadi bulat -->
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0%200%2064%2064'><defs><clipPath id='c'><circle cx='32' cy='32' r='32'/></clipPath></defs><rect width='64' height='64' fill='%231976d2'/><image href='logo.png' width='64' height='64' clip-path='url(%23c)' preserveAspectRatio='xMidYMid%20slice'/></svg>" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta name="theme-color" content="#1976d2">
   <title>Login - WebGIS</title>
   <style>
     .sosmed-icon {
@@ -27,15 +31,17 @@
     @keyframes scaleOut { from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(.9);} }
   </style>
   <style>
+    html, body { height:100%; }
     body {
       margin:0;
       font-family:Arial,sans-serif;
       min-height:100vh;
-      background:
-        linear-gradient(120deg, #0f1f33 60%, #1976d2 100%),
-        #0f1f33;
+      background:linear-gradient(120deg, #0f1f33 60%, #1976d2 100%),
+                  #0f1f33;
       position:relative;
-      overflow:hidden;
+    }
+    .main-content {
+      min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -46,7 +52,8 @@
       inset:0;
       z-index:0;
       opacity:0.10;
-      background-image: linear-gradient(0deg, transparent 24px, #fff2 25px), linear-gradient(90deg, transparent 24px, #fff2 25px);
+      background-image: linear-gradient(0deg, transparent 24px, #fff2 25px),
+                        linear-gradient(90deg, transparent 24px, #fff2 25px);
       background-size: 25px 25px;
       background-position: 0 0, 0 0;
     }
@@ -121,12 +128,28 @@
       transition:border .2s;
       box-sizing:border-box;
     }
+    /* Smooth focus animation: border + soft glow + subtle lift */
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+      transition: border-color .18s ease, box-shadow .22s ease, transform .12s ease;
+      will-change: box-shadow, transform;
+    }
     .login-form input[type="text"]:focus,
     .login-form input[type="password"]:focus {
-      border-color:#1976d2;
-      outline:none;
-      background:#fff;
+      border-color: #1976d2;
+      outline: none;
+      box-shadow: 0 8px 20px rgba(25,118,210,0.08), 0 0 0 4px rgba(25,118,210,0.06);
+      transform: translateY(-1px);
+      background: #fff;
     }
+    /* accessibility: keep visible focus for keyboard users */
+    .login-form input[type="text"]:focus-visible,
+    .login-form input[type="password"]:focus-visible {
+      box-shadow: 0 10px 28px rgba(25,118,210,0.10), 0 0 0 6px rgba(25,118,210,0.06);
+    }
+    /* ensure toggle button doesn't clip shadow */
+    .input-with-toggle { z-index:0; }
+    .input-with-toggle .pw-toggle { z-index:1; }
     .login-form button[type="submit"] {
       width:100%;
       padding:12px 16px;
@@ -140,12 +163,17 @@
       margin-top:2px;
       transition: background .28s cubic-bezier(.4,0,.2,1), box-shadow .28s, transform .25s;
     }
-    .login-form button[type="submit"]:hover {
-      background:#1251a3;
-      filter:brightness(1.08);
-      transform:translateY(-2px) scale(1.03);
-      box-shadow:0 6px 18px -6px #1976d255;
+    /* spinner + disabled state */
+    .btn-spinner { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-spinner .spinner {
+      width:16px; height:16px; border-radius:50%;
+      border:2px solid rgba(255,255,255,0.45);
+      border-top-color: #fff; /* visible top */
+      animation: spin .9s linear infinite;
+      display:inline-block;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .login-form button[disabled] { opacity:.75; cursor:default; transform:none; }
     .login-error {
       color:#d32f2f;
       font-size:12px;
@@ -153,6 +181,42 @@
       text-align:center;
       display:none;
     }
+    .field-error{
+      color:#d32f2f;
+      font-size:12px;
+      margin-top:-8px;
+      margin-bottom:10px;
+      min-height:16px;
+      display:block;
+    }
+    .field-error.hidden{ display:none; }
+
+    /* Tambahan: toggle lihat password */
+    .input-with-toggle{ position:relative; }
+    .input-with-toggle input[type="password"],
+    .input-with-toggle input[type="text"]{ padding-right:44px; box-sizing:border-box; }
+    .pw-toggle{
+      position:absolute;
+      right:8px;
+      top:50%;
+      transform:translateY(-50%);
+      width:34px;
+      height:34px;
+      border:0;
+      background:transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      border-radius:8px;
+      padding:0;
+      line-height:0; /* pastikan isi tombol tidak mengganggu vertikal centering */
+    }
+    .pw-toggle svg{ width:18px; height:18px; stroke:#445; fill:none; stroke-width:1.6; display:block; vertical-align:middle; }
+    .pw-toggle[aria-pressed="true"] svg{ stroke:#1976d2; }
+    .pw-toggle .icon-eye-off{ display:none; }
+    .pw-toggle[aria-pressed="true"] .icon-eye{ display:none; }
+    .pw-toggle[aria-pressed="true"] .icon-eye-off{ display:block; }
   </style>
 </head>
 <body>
@@ -160,7 +224,8 @@
   <svg class="bg-map" viewBox="0 0 520 340" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M120 80 Q180 40 260 60 T400 100 Q440 140 420 200 Q410 260 340 280 Q260 320 180 260 Q120 220 120 160 Q100 120 120 80 Z" fill="#fff" />
   </svg>
-  <div class="box">
+  <div class="main-content">
+    <div class="box">
     <img src="logo.png" alt="Logo" class="logo">
     <h2 id="login-title">Login WebGIS</h2>
     <div style="margin-bottom:16px;">
@@ -175,9 +240,33 @@
       <div class="login-error" id="login-error">Username atau password salah.</div>
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required autofocus>
+      <div id="username-error" class="field-error hidden" aria-live="polite"></div>
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-      <button type="submit">Login</button>
+      <div class="input-with-toggle">
+        <input type="password" id="password" name="password" required>
+        <button type="button" class="pw-toggle" aria-label="Tampilkan password" aria-pressed="false" title="Tampilkan password">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+            <!-- visible eye -->
+            <g class="icon-eye" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+              <circle cx="12" cy="12" r="3" />
+            </g>
+            <!-- eye-off (with pupil + strike) -->
+            <g class="icon-eye-off" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6">
+              <path d="M2.5 12s2.5-4.5 9.5-6.5c2.1-.6 4.2-.6 6 .4" />
+              <path d="M21.5 12s-2.5 4.5-9.5 6.5c-2.1.6-4.2.6-6-.4" />
+              <circle cx="12" cy="12" r="3" />
+              <line x1="2" y1="2" x2="22" y2="22" />
+            </g>
+          </svg>
+        </button>
+      </div>
+      <div id="password-error" class="field-error hidden" aria-live="polite"></div>
+      <!-- tombol dengan spinner -->
+      <button type="submit" class="btn-spinner" aria-live="polite" aria-busy="false">
+        <span class="spinner" aria-hidden="true" style="display:none"></span>
+        <span class="btn-label">Login</span>
+      </button>
     </form>
     <div class="footer">© 2025 LinkGIS</div>
     <div style="font-size:11px; color:#888; margin-top:2px;">Versi 1.0.0 – Update 2025</div>
@@ -191,6 +280,7 @@
       <a href="https://tiktok.com/@akwkwkd" target="_blank" title="TikTok" style="margin:0 6px;text-decoration:none;vertical-align:middle;">
         <img src="Tiktok.png" alt="TikTok" class="sosmed-icon">
       </a>
+    </div>
     </div>
   </div>
   <script>
@@ -236,13 +326,36 @@
     })();
 
     // Demo login logic (ganti sesuai backend Anda)
+    // tombol login (spinner)
+    const loginBtn = document.querySelector('.login-form button[type="submit"]');
+    function setLoading(on, text) {
+      if (!loginBtn) return;
+      const spinner = loginBtn.querySelector('.spinner');
+      const label = loginBtn.querySelector('.btn-label');
+      if (on) {
+        if (spinner) spinner.style.display = 'inline-block';
+        loginBtn.disabled = true;
+        loginBtn.setAttribute('aria-busy','true');
+        label.textContent = text || 'Memeriksa akun...';
+      } else {
+        if (spinner) spinner.style.display = 'none';
+        loginBtn.disabled = false;
+        loginBtn.setAttribute('aria-busy','false');
+        label.textContent = 'Login';
+      }
+    }
+
     document.querySelector('.login-form').onsubmit = function(e){
       e.preventDefault();
+      if(!validateForm()) return;
+      // tampilkan loading
+      setLoading(true, 'Memeriksa akun...');
       var u = document.getElementById('username').value.trim();
       var p = document.getElementById('password').value.trim();
       var err = document.getElementById('login-error');
       var mode = localStorage.getItem('mode') || 'kasdesa';
       var valid = false;
+      // demo credential check
       if(mode === 'kasdesa' && u === 'desa' && p === 'desa') valid = true;
       if(mode === 'dadan' && u === 'dadan' && p === 'dadan') valid = true;
       if(valid){
@@ -250,12 +363,75 @@
         document.documentElement.classList.add('page-exit');
         setTimeout(()=>{ location.href = 'map.html'; }, 340);
       } else {
+        // tampilkan error dan matikan loading
         err.style.display = 'block';
+        setLoading(false);
       }
     };
-    document.getElementById('username').oninput = document.getElementById('password').oninput = function(){
-      document.getElementById('login-error').style.display = 'none';
-    };
+    // Real-time validation helpers
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const usernameErr = document.getElementById('username-error');
+    const passwordErr = document.getElementById('password-error');
+    const submitBtn = document.querySelector('.login-form button[type="submit"]');
+    const globalErr = document.getElementById('login-error');
+
+    function validateUsername(){
+      const v = usernameEl.value.trim();
+      if(!v){
+        usernameErr.textContent = 'Username tidak boleh kosong.';
+        usernameErr.classList.remove('hidden');
+        return false;
+      }
+      usernameErr.textContent = '';
+      usernameErr.classList.add('hidden');
+      return true;
+    }
+    function validatePassword(){
+      const v = passwordEl.value;
+      if(v.length > 0 && v.length < 4){
+        passwordErr.textContent = 'Password terlalu pendek.';
+        passwordErr.classList.remove('hidden');
+        return false;
+      }
+      passwordErr.textContent = '';
+      passwordErr.classList.add('hidden');
+      return true;
+    }
+    function validateForm(){
+      const a = validateUsername();
+      const b = validatePassword();
+      submitBtn.disabled = !(a && b);
+      if(globalErr) globalErr.style.display = 'none';
+      return a && b;
+    }
+
+    usernameEl.addEventListener('input', validateForm);
+    passwordEl.addEventListener('input', validateForm);
+    // inisialisasi state tombol
+    validateForm();
+
+    // Pastikan selalu logout saat berada di halaman login (auth hanya berlaku di map)
+    (function ensureLoggedOutOnNonMap(){
+      try { localStorage.removeItem('auth'); } catch(_) {}
+      window.addEventListener('pageshow', ()=>{ try{ localStorage.removeItem('auth'); }catch(_){} });
+      window.addEventListener('load', ()=>{ try{ localStorage.removeItem('auth'); }catch(_){} });
+    })();
+
+    // Toggle lihat password
+    (function(){
+      const pwInput = document.getElementById('password');
+      const pwToggle = document.querySelector('.pw-toggle');
+      if(!pwInput || !pwToggle) return;
+      pwToggle.addEventListener('click', function(){
+        const show = pwInput.type === 'password';
+        pwInput.type = show ? 'text' : 'password';
+        pwToggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+        pwToggle.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+        // pertahankan fokus di input
+        pwInput.focus();
+      });
+    })();
   </script>
 </body>
 </html>
